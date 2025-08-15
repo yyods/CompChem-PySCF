@@ -1,0 +1,14 @@
+# week2/d    # Example default command; we'll override during the demo
+    command: scripts/water_optimize.pyker-compose.yml
+services:
+  pyscf:
+    build: .
+    image: week2/pyscf:1.0
+    working_dir: /work
+    volumes:
+      - ./scripts:/work/scripts
+      - ./jobs:/work/jobs
+    # Example default command; we’ll override during the demo
+    command: scripts/optimize_water.py
+    environment:
+      - OMP_NUM_THREADS=1 # deterministic BLAS threading
