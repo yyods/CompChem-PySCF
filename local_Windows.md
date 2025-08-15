@@ -4,19 +4,24 @@ A simple step-by-step guide to install and test PySCF on Windows 10/11.
 
 ## Step 1: Verify Your System
 
-First, confirm you have Windows and Python installed:
+
+First, confirm you have Windows and **Python 3.10** (or 3.9/3.8) installed. PySCF is not compatible with Python 3.11+ on Windows as of August 2025.
 
 ```powershell
 # Check Windows version
 systeminfo | findstr "OS Name"
 ```
 
-Ensure Python 3.8+ is installed:
+Ensure Python 3.10 is installed (recommended):
 ```powershell
 python --version
 ```
 
-If Python is not installed, download from [python.org](https://www.python.org/downloads/windows/)
+If Python 3.10 is not installed, download it from [python.org](https://www.python.org/downloads/release/python-3100/)
+
+> **Troubleshooting:**
+> - If you see errors about missing compilers or CMake when installing PySCF, you are likely using Python 3.11 or newer. PySCF only provides pre-built wheels for Python 3.10 and earlier on Windows. Uninstall your current virtual environment, install Python 3.10, and recreate the environment.
+> - If you must use Python 3.11+, you will need to install Visual Studio Build Tools and CMake, and build PySCF from source (not recommended for beginners).
 
 ## Step 2: Create Python Environment
 
