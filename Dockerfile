@@ -11,13 +11,9 @@ RUN pip install --upgrade pip && \
     pip install "numpy==1.26.4" "scipy==1.13.1" \
                 "pyscf==2.4.0" "geometric==1.0.0" "pyberny==0.6.3"
 
-# Runtime workspace with cross-platform directory structure
-WORKDIR /work
-RUN mkdir -p /work/results /work/jobs /work/scripts
-
-# Copy scripts with proper permissions
-COPY scripts/ /work/scripts/
-RUN chmod -R 755 /work/scripts
+# Runtime workspace - no scripts embedded for live development
+WORKDIR /workspace
+RUN mkdir -p /workspace/results /workspace/scripts /workspace/jobs
 
 # Cross-platform entrypoint
 ENTRYPOINT ["/usr/local/bin/python"]
