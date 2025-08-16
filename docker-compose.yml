@@ -1,5 +1,3 @@
-# week2/d    # Example default command; we'll override during the demo
-    command: scripts/water_optimize.pyker-compose.yml
 services:
   pyscf:
     build: .
