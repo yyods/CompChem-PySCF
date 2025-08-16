@@ -1,0 +1,17 @@
+# Cross-platform Docker ignore
+.git
+.gitignore
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+results/
+jobs/
+*.md
+docker-compose.yml

@@ -3,10 +3,21 @@ services:
     build: .
     image: week2/pyscf:1.0
     working_dir: /work
+    # Cross-platform configuration without problematic bind mounts
+    # Scripts are embedded in image for maximum compatibility
     volumes:
-      - ./scripts:/work/scripts
-      - ./jobs:/work/jobs
-    # Example default command; we’ll override during the demo
+      # Only mount results for output persistence
+      - results:/work/results
+    
+    # Default command - can be overridden
     command: scripts/optimize_water.py
+    
+    # Cross-platform environment variables
     environment:
-      - OMP_NUM_THREADS=1 # deterministic BLAS threading
+      - OMP_NUM_THREADS=1  # Deterministic BLAS threading
+      - PYTHONUNBUFFERED=1  # Real-time output
+      - PYTHONPATH=/work    # Ensure module resolution
+
+# Named volumes for data persistence across platforms
+volumes:
+  results:
