@@ -1,0 +1,230 @@
+# Week 2 — Containers & Electronic-Structure Workflows
+
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](./Dockerfile)
+[![Cross-Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-success)](./docker-compose.yml)
+[![PySCF](https://img.shields.io/badge/PySCF-2.4.0-orange)](https://pyscf.org/)
+
+A complete containerized environment for quantum chemistry calculations using PySCF, demonstrating reproducible computational workflows across platforms.
+
+## 🎯 Learning Objectives
+
+By the end of this module, students will:
+
+1. **Explain** why containers matter for computational reproducibility in quantum chemistry
+2. **Build and run** a Docker image that executes PySCF jobs deterministically
+3. **Compare** HF, MP2, and DFT methods on accuracy vs. cost trade-offs
+4. **Configure** SCF/geometry convergence and basis set options appropriately
+5. **Deploy** containerized calculations to GitHub Container Registry (GHCR)
+
+## 🔧 Prerequisites
+
+**Required Setup:**
+
+- Docker Desktop/Engine with `docker compose` v2
+- GitHub Personal Access Token with `write:packages` scope
+- Basic command line familiarity
+
+**Quick Verification:**
+
+```bash
+docker --version
+docker compose version
+docker run hello-world
+```
+
+## 🚀 Quick Start
+
+### 1. Clone and Build
+
+```bash
+git clone <repository-url>
+cd Week_2
+docker compose build pyscf
+```
+
+### 2. Run Test Calculation
+
+```bash
+# B3LYP geometry optimization of water
+docker compose run --rm pyscf scripts/optimize_water.py
+
+# Check results
+cat results/water_opt.xyz
+```
+
+### 3. Explore Methods
+
+```bash
+# Hartree-Fock calculation
+docker compose run --rm pyscf scripts/water_hf.py
+
+# DFT calculation
+docker compose run --rm pyscf scripts/water_dft.py
+
+# MP2 calculation
+docker compose run --rm pyscf scripts/water_mp2.py
+
+# CO₂ single-point energy
+docker compose run --rm pyscf scripts/co2_test.py
+```
+
+## 📁 Project Structure
+
+```
+week2/
+├── 🐳 Dockerfile              # Python 3.10 + PySCF environment
+├── 🔧 docker-compose.yml      # Cross-platform bind mounts
+├── 📜 scripts/                # Calculation scripts
+│   ├── optimize_water.py      # B3LYP geometry optimization
+│   ├── co2_test.py           # CO₂ single-point energy
+│   ├── water_B3LYP_631Gd.py # B3LYP/6-31G(d) calculation
+│   ├── water_dft.py          # DFT demonstration
+│   ├── water_hf.py           # Hartree-Fock calculation
+│   └── water_mp2.py          # MP2 correlation energy
+├── 📊 results/               # Output files (.xyz, .txt, .json)
+├── 📋 jobs/                  # Batch job artifacts
+├── 📚 docs/                  # Platform-specific setup guides
+│   ├── local_MacOS.md        # Apple Silicon setup
+│   ├── local_Windows.md      # Windows 10/11 setup
+│   └── local_original.md     # Original macOS guide
+└── 📖 resources/
+    └── outline.md            # Detailed course outline
+```
+
+## 🔬 Method Comparison
+
+| Method  | Scaling  | Accuracy | Use Case                      |
+| ------- | -------- | -------- | ----------------------------- |
+| **HF**  | O(N⁴)    | Baseline | Orbital analysis, teaching    |
+| **DFT** | O(N³-N⁴) | Good     | Geometries, relative energies |
+| **MP2** | O(N⁵)    | Better   | Small molecules, correlation  |
+
+### Recommended Settings
+
+- **Quick screening**: `def2-SVP` basis, `grids.level=3`
+- **Production**: `def2-TZVP` basis, `conv_tol=1e-9`
+- **High accuracy**: `def2-QZVP` + CBS extrapolation
+
+## 🏗️ Container Architecture
+
+### Cross-Platform Dockerfile
+
+```dockerfile
+FROM python:3.10-slim
+# Pinned versions: numpy==1.26.4, scipy==1.13.1, pyscf==2.4.0
+# No embedded scripts - pure bind mount approach
+WORKDIR /workspace
+ENTRYPOINT ["/usr/local/bin/python"]
+```
+
+### Bind Mount Strategy
+
+```yaml
+volumes:
+  - ./scripts:/workspace/scripts:rw # Live script editing
+  - ./results:/workspace/results:rw # Persistent outputs
+  - ./jobs:/workspace/jobs:rw # Batch artifacts
+```
+
+## 🖥️ Platform-Specific Setup
+
+### 🍎 macOS (Apple Silicon)
+
+```bash
+# See detailed guide
+open docs/local_MacOS.md
+```
+
+### 🪟 Windows
+
+```powershell
+# See detailed guide
+start docs/local_Windows.md
+```
+
+### 🐧 Linux
+
+```bash
+# Docker Engine installation
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+```
+
+## 📦 Assignment: GHCR Deployment
+
+**Objective**: Containerize CO₂ single-point calculation and push to GitHub Container Registry
+
+### Steps:
+
+1. **Build & Test Locally**
+
+   ```bash
+   docker compose run --rm pyscf scripts/co2_test.py
+   cat results/co2_b3lyp.txt
+   ```
+
+2. **Authenticate to GHCR**
+
+   ```bash
+   echo $CR_PAT | docker login ghcr.io -u <USERNAME> --password-stdin
+   ```
+
+3. **Tag & Push**
+   ```bash
+   docker tag week2/pyscf:1.0 ghcr.io/<USERNAME>/pyscf-co2:week2
+   docker push ghcr.io/<USERNAME>/pyscf-co2:week2
+   ```
+
+### 📋 Deliverables
+
+- ✅ Git repository with complete codebase
+- ✅ `RUNBOOK.md` with build/run instructions
+- ✅ `RESULTS.md` with energy values and metadata
+- ✅ GHCR image link with digest hash
+
+## 🐛 Troubleshooting
+
+### Docker Desktop Path Issues (macOS)
+
+```bash
+# Move to accessible location if bind mounts fail
+cp -r /path/to/project /Users/$USER/docker-projects/
+cd /Users/$USER/docker-projects/Week_2
+```
+
+### Python Version Compatibility
+
+- **macOS/Linux**: Python 3.10-3.11 supported
+- **Windows**: Python 3.10 required (pre-built wheels limitation)
+
+### Memory Issues
+
+```bash
+# Increase Docker memory allocation
+# Docker Desktop → Settings → Resources → Memory: 8GB+
+```
+
+## 📚 Additional Resources
+
+- **PySCF Documentation**: https://pyscf.org/user.html
+- **Basis Set Exchange**: https://www.basissetexchange.org/
+- **Docker Best Practices**: https://docs.docker.com/develop/best-practices/
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/calculation-type`)
+3. Commit changes (`git commit -am 'Add new calculation method'`)
+4. Push to branch (`git push origin feature/calculation-type`)
+5. Create Pull Request
+
+## 📄 License
+
+This educational content is available under MIT License. See `LICENSE` file for details.
+
+---
+
+**🎓 Course**: Computational Chemistry  
+**📅 Module**: Week 2 - Container Workflows  
+**👨‍🏫 Instructor**: Viwat Vchirawongkwin  
+**🏫 Institution**: Chulalongkorn University
