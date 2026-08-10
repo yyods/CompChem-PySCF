@@ -1,311 +1,116 @@
-# PySCF Setup Guide for Windows
+# PySCF on Windows
 
-A simple step-by-step guide to install and test PySCF on Windows 10/11.
+**Short version: there is no native Windows build of PySCF.** Run it under WSL2
+or in the container. Both routes are below.
 
-## Step 1: Verify Your System
+## Week 2 needs none of this
 
+Week 2 is Git and reproducibility. You fork this repository, branch, commit,
+open a pull request and tag — no calculation is run, so **you do not need PySCF
+installed to complete Week 2**. Set up one of the routes below before Week 3.
 
-First, confirm you have Windows and **Python 3.10** (or 3.9/3.8) installed. PySCF is not compatible with Python 3.11+ on Windows as of August 2025.
+## Why not just `pip install pyscf`?
 
-```powershell
-# Check Windows version
-systeminfo | findstr "OS Name"
+PySCF publishes wheels for Linux (`manylinux`) and macOS only. There is no
+`win_amd64` wheel for **any** version — not 2.4.0, not the current release. On
+Windows, `pip install pyscf` therefore falls back to the source tarball and
+tries to build it, which fails within seconds:
+
+```
+CMake Error: CMAKE_C_COMPILER not set
 ```
 
-Ensure Python 3.10 is installed (recommended):
+Downgrading to Python 3.10 does not help, and neither does conda: conda-forge
+builds PySCF for `linux-64`, `linux-aarch64`, `linux-ppc64le`, `osx-64` and
+`osx-arm64` — there is no `win-64` package. If you have seen a guide claiming
+otherwise, it is wrong.
+
+## Route A — WSL2 (recommended if you want a local Python)
+
+WSL2 gives you a real Linux userspace, so the ordinary Linux wheels install.
+
 ```powershell
-python --version
+# In an elevated PowerShell, once:
+wsl --install -d Ubuntu
 ```
 
-If Python 3.10 is not installed, download it from [python.org](https://www.python.org/downloads/release/python-3100/)
+Reboot if prompted, then open the **Ubuntu** terminal and continue there:
 
-> **Troubleshooting:**
-> - If you see errors about missing compilers or CMake when installing PySCF, you are likely using Python 3.11 or newer. PySCF only provides pre-built wheels for Python 3.10 and earlier on Windows. Uninstall your current virtual environment, install Python 3.10, and recreate the environment.
-> - If you must use Python 3.11+, you will need to install Visual Studio Build Tools and CMake, and build PySCF from source (not recommended for beginners).
+```bash
+sudo apt update && sudo apt install -y python3-venv
+git clone https://github.com/yyods/CompChem-PySCF.git
+cd CompChem-PySCF
 
-## Step 2: Create Python Environment
-
-Set up an isolated environment for PySCF in the current directory:
-
-```powershell
-# Create and activate virtual environment in current directory
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-
-# Upgrade pip and tools
+python3 -m venv .venv
+source .venv/bin/activate
 python -m pip install --upgrade pip wheel setuptools
+python -m pip install "numpy==1.26.4" "scipy==1.13.1" "pyscf==2.4.0" "geometric==1.0.0"
 ```
 
-**Note for Command Prompt users**: Use `.venv\Scripts\activate.bat` instead of `.venv\Scripts\Activate.ps1`
+Verify:
 
-## Step 3: Install PySCF
-
-Install PySCF and dependencies (install individually to ensure success):
-
-```powershell
-# Install packages one by one for reliability
-python -m pip install "numpy==1.26.4"
-python -m pip install "scipy==1.13.1" 
-python -m pip install "pyscf==2.4.0"
-python -m pip install "geometric==1.0.0"
+```bash
+python -c "import numpy, pyscf; print('NumPy', numpy.__version__, '| PySCF', pyscf.__version__)"
 ```
 
-## Step 4: Test Installation
+Then run any script in the repository:
 
-Verify everything works (use activated environment):
-
-```powershell
-python -c "
-import sys, platform, numpy, pyscf
-print('Python:', sys.version.split()[0])
-print('Architecture:', platform.machine())
-print('NumPy:', numpy.__version__)
-print('PySCF:', pyscf.__version__)
-print('✅ Installation successful!')
-"
+```bash
+OMP_NUM_THREADS=1 python scripts/water_hf.py
+cat results/water_hf.txt
 ```
 
-**Note**: Ensure the virtual environment is activated (you should see `(.venv)` in your prompt)
+Keep the repository inside the Linux filesystem (`~/CompChem-PySCF`) rather than
+under `/mnt/c/...` — file access across the Windows boundary is slow.
 
-## Step 5: Run Test Calculations
+## Route B — Docker Desktop (what Week 3 uses)
 
-Create directories for your scripts and results:
-
-```powershell
-mkdir scripts, results -Force
-```
-
-### Test 1: Water Molecule - RHF Calculation
+No Python setup at all; the pinned environment lives in the image.
 
 ```powershell
-@'
-from pyscf import gto, scf
-
-# Define water molecule
-mol = gto.M(atom='''
-O  0.0000  0.0000  0.0000
-H  0.0000 -0.7570  0.5870
-H  0.0000  0.7570  0.5870
-''', basis='def2-svp', unit='Angstrom', verbose=4)
-
-# Run Hartree-Fock calculation
-mf = scf.RHF(mol)
-mf.conv_tol = 1e-9
-energy = mf.kernel()
-
-print(f"RHF Energy = {energy:.10f} Hartree")
-with open("results/water_hf.txt", "w") as f:
-    f.write(f"{energy:.12f}\n")
-'@ | Out-File -FilePath scripts\water_hf.py -Encoding utf8
-
-# Run the calculation
-$env:OMP_NUM_THREADS=1; python scripts\water_hf.py
+docker compose build pyscf
+docker compose run --rm pyscf scripts/water_hf.py
 Get-Content results\water_hf.txt
 ```
 
-**Expected result**: `-75.960975166983` (around -76 Hartree)
+Docker Desktop needs the WSL2 backend, so Route A's `wsl --install` is worth
+doing either way.
 
-### Test 2: Water Molecule - DFT Calculation
+## Reference energies
 
-```powershell
-@'
-from pyscf import gto, dft
+Produced by the container; use them to check your own setup. Small differences
+in the last digits across BLAS libraries and thread counts are expected —
+that is a Week 3 discussion.
 
-# Define water molecule
-mol = gto.M(atom='''
-O  0.0000  0.0000  0.0000
-H  0.0000 -0.7570  0.5870
-H  0.0000  0.7570  0.5870
-''', basis='def2-svp', unit='Angstrom', verbose=4)
+| Script                  | Method            | Energy / Hartree |
+| ----------------------- | ----------------- | ---------------- |
+| `water_hf.py`           | RHF/def2-SVP      | -75.960975166983 |
+| `water_dft.py`          | B3LYP/def2-SVP    | -76.358149490137 |
+| `water_mp2.py`          | MP2/def2-SVP      | -76.164590031811 |
+| `co2_test.py`           | B3LYP/def2-SVP    | -188.442995139098 |
 
-# Run B3LYP DFT calculation
-mf = dft.RKS(mol)
-mf.xc = 'B3LYP'
-mf.grids.level = 3
-mf.conv_tol = 1e-9
-energy = mf.kernel()
+Set `OMP_NUM_THREADS=1` for run-to-run determinism (`$env:OMP_NUM_THREADS=1` in
+PowerShell). The container sets it already.
 
-print(f"B3LYP Energy = {energy:.10f} Hartree")
-with open("results/water_b3lyp.txt", "w") as f:
-    f.write(f"{energy:.12f}\n")
-'@ | Out-File -FilePath scripts\water_dft.py -Encoding utf8
+## Windows-specific notes
 
-# Run the calculation
-$env:OMP_NUM_THREADS=1; python scripts\water_dft.py
-Get-Content results\water_b3lyp.txt
-```
+**PowerShell execution policy** — if activating a virtual environment is
+blocked:
 
-**Expected result**: `-76.358149490137` (similar to RHF, slightly different due to correlation)
-
-### Test 3: Water Molecule - MP2 Calculation
-
-```powershell
-@'
-from pyscf import gto, scf, mp
-
-# Define water molecule
-mol = gto.M(atom='''
-O  0.0000  0.0000  0.0000
-H  0.0000 -0.7570  0.5870
-H  0.0000  0.7570  0.5870
-''', basis='def2-svp', unit='Angstrom', verbose=4)
-
-# Run RHF first, then MP2
-mf = scf.RHF(mol).run(conv_tol=1e-9)
-mp2 = mp.MP2(mf).run()
-
-print(f"RHF Energy = {mf.e_tot:.10f} Hartree")
-print(f"MP2 Energy = {mp2.e_tot:.10f} Hartree")
-with open("results/water_mp2.txt", "w") as f:
-    f.write(f"{mp2.e_tot:.12f}\n")
-'@ | Out-File -FilePath scripts\water_mp2.py -Encoding utf8
-
-# Run the calculation
-$env:OMP_NUM_THREADS=1; python scripts\water_mp2.py
-Get-Content results\water_mp2.txt
-```
-
-**Expected result**: `-76.164590031811` (lower than RHF due to electron correlation)
-
-## Step 6: Geometry Optimization
-
-Optimize the water molecule geometry:
-
-```powershell
-@'
-from pyscf import gto, dft
-from pyscf.geomopt.geometric_solver import optimize
-from pathlib import Path
-
-# Define water molecule (starting geometry)
-mol = gto.M(atom='''
-O  0.0000  0.0000  0.0000
-H  0.0000 -0.7570  0.5870
-H  0.0000  0.7570  0.5870
-''', basis='def2-svp', unit='Angstrom', verbose=4)
-
-# Set up B3LYP calculation
-mf = dft.RKS(mol)
-mf.xc = 'B3LYP'
-mf.grids.level = 3
-mf.conv_tol = 1e-9
-
-# Optimize geometry
-mol_opt = optimize(mf, maxsteps=100)
-
-# Save optimized geometry
-xyz_file = Path("results/water_opt.xyz")
-with xyz_file.open("w") as f:
-    f.write(f"{mol_opt.natm}\nOptimized H2O (B3LYP/def2-SVP)\n")
-    for i, (x, y, z) in enumerate(mol_opt.atom_coords()):
-        symbol = mol_opt.atom_symbol(i)
-        f.write(f"{symbol:2s} {x:.8f} {y:.8f} {z:.8f}\n")
-
-print(f"Optimized geometry saved to {xyz_file}")
-'@ | Out-File -FilePath scripts\water_optimize.py -Encoding utf8
-
-# Run optimization
-$env:OMP_NUM_THREADS=1; python scripts\water_optimize.py
-Get-Content results\water_opt.xyz
-```
-
-**Expected result**: Optimized geometry showing slight changes from starting structure
-
-## Step 7: CO₂ Test Calculation
-
-Test with a linear molecule (CO₂):
-
-```powershell
-@'
-from pyscf import gto, dft
-
-# Define CO2 molecule (linear)
-mol = gto.M(atom="C 0 0 0; O 0 0 1.160; O 0 0 -1.160",
-            basis="def2-svp", unit="Angstrom", verbose=4)
-
-# Run B3LYP calculation
-mf = dft.RKS(mol)
-mf.xc = "B3LYP"
-mf.grids.level = 3
-mf.conv_tol = 1e-9
-energy = mf.kernel()
-
-print(f"CO₂ B3LYP Energy = {energy:.10f} Hartree")
-with open("results/co2_b3lyp.txt", "w") as f:
-    f.write(f"{energy:.12f}\n")
-'@ | Out-File -FilePath scripts\co2_test.py -Encoding utf8
-
-# Run calculation
-$env:OMP_NUM_THREADS=1; python scripts\co2_test.py
-Get-Content results\co2_b3lyp.txt
-```
-
-**Expected result**: `-188.442995139098` (much more negative due to more electrons)
-
-## Expected Results
-
-- **RHF Energy**: -75.96 Hartree (around -76 Hartree, negative value)
-- **B3LYP Energy**: -76.36 Hartree (similar to RHF, slightly different due to correlation)
-- **MP2 Energy**: -76.16 Hartree (lower than RHF, more negative due to electron correlation)
-- **CO₂ Energy**: -188.44 Hartree (much more negative due to more electrons)
-
-## Windows-Specific Notes
-
-### PowerShell vs Command Prompt
-- **PowerShell** (recommended): Use `.venv\Scripts\Activate.ps1` and `@'...'@` syntax
-- **Command Prompt**: Use `.venv\Scripts\activate.bat` and create files with `echo` commands
-
-### Alternative Command Prompt syntax for creating scripts:
-```cmd
-echo from pyscf import gto, scf > scripts\water_hf.py
-echo. >> scripts\water_hf.py
-echo # Define water molecule >> scripts\water_hf.py
-REM ... (continue with remaining lines)
-```
-
-### Path Separators
-- Windows uses backslashes (`\`) in paths
-- Python scripts use forward slashes (`/`) which work cross-platform
-
-### Environment Variables
-- PowerShell: `$env:OMP_NUM_THREADS=1`
-- Command Prompt: `set OMP_NUM_THREADS=1`
-
-## Troubleshooting
-
-### If pip installation fails:
-Try using conda instead:
-
-```powershell
-# Install miniconda from https://docs.conda.io/en/latest/miniconda.html
-conda create -n pyscf-311 -c conda-forge python=3.11 pyscf=2.4 numpy=1.26 scipy=1.13 geometric=1.0
-conda activate pyscf-311
-```
-
-### If execution policy prevents script activation:
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
-### For Visual Studio Code users:
-- Install Python extension
-- Select the virtual environment interpreter: `Ctrl+Shift+P` → "Python: Select Interpreter"
-- Choose `.venv\Scripts\python.exe`
+**VS Code** — install the Python and WSL extensions, then `Ctrl+Shift+P` →
+"WSL: Connect to WSL" and open the repository from inside Ubuntu. Selecting a
+Windows interpreter will not find PySCF, because it cannot be installed there.
 
-## Clean Up
-
-When finished:
-
-```powershell
-deactivate  # Exit virtual environment
-```
+**Line endings** — Git for Windows checks files out with CRLF by default. That
+is fine for Python, but if a script ever fails with a stray `\r`, run
+`git config --global core.autocrlf input` inside WSL.
 
 ## Summary
 
-You have successfully:
-- ✅ Installed PySCF on Windows
-- ✅ Run RHF, DFT, and MP2 calculations
-- ✅ Performed geometry optimization
-- ✅ Saved all results for reference
-
-Your PySCF installation is ready for computational chemistry work on Windows!
+- There is no native Windows PySCF; do not try to `pip install` it.
+- Week 2 needs no PySCF at all.
+- For Week 3, use WSL2 (Route A) or Docker Desktop (Route B).
