@@ -1,6 +1,11 @@
 # PySCF Setup Guide for Apple Silicon Macs
 
-A simple step-by-step guide to install and test PySCF on M1/M2/M3 Macs.
+A step-by-step guide to install and test PySCF on M1/M2/M3 Macs.
+
+> **Week 2 needs none of this.** Week 2 is Git and reproducibility — you fork,
+> branch, commit, open a pull request and tag, without running a calculation.
+> Set this up before Week 3, or use the container instead
+> (`docker compose run --rm pyscf scripts/water_hf.py`).
 
 ## Step 1: Verify Your System
 
@@ -18,35 +23,37 @@ xcode-select --install
 
 ## Step 2: Create Python Environment
 
-Set up an isolated environment for PySCF in the current directory:
+Clone the repository and set up an isolated environment inside it:
 
 ```bash
-# Create and activate virtual environment in current directory
+git clone https://github.com/yyods/CompChem-PySCF.git
+cd CompChem-PySCF
+
+# Create and activate a virtual environment in the current directory
 python3 -m venv .venv
 source .venv/bin/activate
 
-# Upgrade pip and tools
+# Upgrade packaging tools
 python -m pip install --upgrade pip wheel setuptools
 ```
 
+`.venv/` is gitignored, so it never ends up in a commit.
+
 ## Step 3: Install PySCF
 
-Install PySCF and dependencies (install individually to ensure success):
+Install PySCF and dependencies, pinned to the same versions as the container:
 
 ```bash
-# Install packages one by one for reliability
 python -m pip install "numpy==1.26.4"
-python -m pip install "scipy==1.13.1" 
+python -m pip install "scipy==1.13.1"
 python -m pip install "pyscf==2.4.0"
 python -m pip install "geometric==1.0.0"
 ```
 
 ## Step 4: Test Installation
 
-Verify everything works (use full Python path):
-
 ```bash
-/Users/vyv/Documents/Teaching/CompChem/2025/Week_2/.venv/bin/python -c "
+python -c "
 import sys, platform, numpy, pyscf
 print('Python:', sys.version.split()[0])
 print('Architecture:', platform.machine())
@@ -56,194 +63,80 @@ print('✅ Installation successful!')
 "
 ```
 
-**Note**: After configuring the environment, use the full Python path for all commands:
-`/Users/vyv/Documents/Teaching/CompChem/2025/Week_2/.venv/bin/python` instead of just `python`
+**Note**: Keep the virtual environment activated for every command below — you
+should see `(.venv)` at the start of your prompt. `deactivate` leaves it.
 
-## Step 5: Run Test Calculations
+## Step 5: Run the Calculations
 
-Create directories for your scripts and results:
+The scripts are already in the repository — run them, do not retype them. Each
+one creates `results/` on first write, and `results/` is gitignored.
+
+`OMP_NUM_THREADS=1` pins BLAS to a single thread so a rerun reproduces the same
+digits.
+
+### Test 1: Water — RHF
 
 ```bash
-mkdir -p scripts results
-```
-
-### Test 1: Water Molecule - RHF Calculation
-
-```bash
-cat > scripts/water_hf.py << 'EOF'
-from pyscf import gto, scf
-
-# Define water molecule
-mol = gto.M(atom='''
-O  0.0000  0.0000  0.0000
-H  0.0000 -0.7570  0.5870
-H  0.0000  0.7570  0.5870
-''', basis='def2-svp', unit='Angstrom', verbose=4)
-
-# Run Hartree-Fock calculation
-mf = scf.RHF(mol)
-mf.conv_tol = 1e-9
-energy = mf.kernel()
-
-print(f"RHF Energy = {energy:.10f} Hartree")
-with open("results/water_hf.txt", "w") as f:
-    f.write(f"{energy:.12f}\n")
-EOF
-
-# Run the calculation
-OMP_NUM_THREADS=1 /Users/vyv/Documents/Teaching/CompChem/2025/Week_2/.venv/bin/python scripts/water_hf.py
+OMP_NUM_THREADS=1 python scripts/water_hf.py
 cat results/water_hf.txt
 ```
 
-**Expected result**: `-75.960975166983` (around -76 Hartree)
+**Expected**: `-75.960975166983` (around -76 Hartree)
 
-### Test 2: Water Molecule - DFT Calculation
+### Test 2: Water — B3LYP
 
 ```bash
-cat > scripts/water_dft.py << 'EOF'
-from pyscf import gto, dft
-
-# Define water molecule
-mol = gto.M(atom='''
-O  0.0000  0.0000  0.0000
-H  0.0000 -0.7570  0.5870
-H  0.0000  0.7570  0.5870
-''', basis='def2-svp', unit='Angstrom', verbose=4)
-
-# Run B3LYP DFT calculation
-mf = dft.RKS(mol)
-mf.xc = 'B3LYP'
-mf.grids.level = 3
-mf.conv_tol = 1e-9
-energy = mf.kernel()
-
-print(f"B3LYP Energy = {energy:.10f} Hartree")
-with open("results/water_b3lyp.txt", "w") as f:
-    f.write(f"{energy:.12f}\n")
-EOF
-
-# Run the calculation
-OMP_NUM_THREADS=1 /Users/vyv/Documents/Teaching/CompChem/2025/Week_2/.venv/bin/python scripts/water_dft.py
+OMP_NUM_THREADS=1 python scripts/water_dft.py
 cat results/water_b3lyp.txt
 ```
 
-**Expected result**: `-76.358149490137` (similar to RHF, slightly different due to correlation)
+**Expected**: `-76.358149490137`
 
-### Test 3: Water Molecule - MP2 Calculation
+### Test 3: Water — MP2
 
 ```bash
-cat > scripts/water_mp2.py << 'EOF'
-from pyscf import gto, scf, mp
-
-# Define water molecule
-mol = gto.M(atom='''
-O  0.0000  0.0000  0.0000
-H  0.0000 -0.7570  0.5870
-H  0.0000  0.7570  0.5870
-''', basis='def2-svp', unit='Angstrom', verbose=4)
-
-# Run RHF first, then MP2
-mf = scf.RHF(mol).run(conv_tol=1e-9)
-mp2 = mp.MP2(mf).run()
-
-print(f"RHF Energy = {mf.e_tot:.10f} Hartree")
-print(f"MP2 Energy = {mp2.e_tot:.10f} Hartree")
-with open("results/water_mp2.txt", "w") as f:
-    f.write(f"{mp2.e_tot:.12f}\n")
-EOF
-
-# Run the calculation
-OMP_NUM_THREADS=1 /Users/vyv/Documents/Teaching/CompChem/2025/Week_2/.venv/bin/python scripts/water_mp2.py
+OMP_NUM_THREADS=1 python scripts/water_mp2.py
 cat results/water_mp2.txt
 ```
 
-**Expected result**: `-76.164590031811` (lower than RHF due to electron correlation)
+**Expected**: `-76.164590031811`
 
-## Step 6: Geometry Optimization
+> These three totals sort as B3LYP < MP2 < HF. That is **not** an accuracy
+> ranking — total energies from different methods are not comparable to each
+> other. See the Method Comparison table in the README.
 
-Optimize the water molecule geometry:
+### Test 4: Water — geometry optimisation
 
 ```bash
-cat > scripts/water_optimize.py << 'EOF'
-from pyscf import gto, dft
-from pyscf.geomopt.geometric_solver import optimize
-from pathlib import Path
-
-# Define water molecule (starting geometry)
-mol = gto.M(atom='''
-O  0.0000  0.0000  0.0000
-H  0.0000 -0.7570  0.5870
-H  0.0000  0.7570  0.5870
-''', basis='def2-svp', unit='Angstrom', verbose=4)
-
-# Set up B3LYP calculation
-mf = dft.RKS(mol)
-mf.xc = 'B3LYP'
-mf.grids.level = 3
-mf.conv_tol = 1e-9
-
-# Optimize geometry
-mol_opt = optimize(mf, maxsteps=100)
-
-# Save optimized geometry
-xyz_file = Path("results/water_opt.xyz")
-with xyz_file.open("w") as f:
-    f.write(f"{mol_opt.natm}\nOptimized H2O (B3LYP/def2-SVP)\n")
-    for i, (x, y, z) in enumerate(mol_opt.atom_coords()):
-        symbol = mol_opt.atom_symbol(i)
-        f.write(f"{symbol:2s} {x:.8f} {y:.8f} {z:.8f}\n")
-
-print(f"Optimized geometry saved to {xyz_file}")
-EOF
-
-# Run optimization
-OMP_NUM_THREADS=1 /Users/vyv/Documents/Teaching/CompChem/2025/Week_2/.venv/bin/python scripts/water_optimize.py
+OMP_NUM_THREADS=1 python scripts/optimize_water.py
 cat results/water_opt.xyz
 ```
 
-**Expected result**: Optimized geometry showing slight changes from starting structure
+**Expected**: an optimised geometry, slightly changed from the starting
+structure.
 
-## Step 7: CO₂ Test Calculation
-
-Test with a linear molecule (CO₂):
+### Test 5: CO₂ — B3LYP
 
 ```bash
-cat > scripts/co2_test.py << 'EOF'
-from pyscf import gto, dft
-
-# Define CO2 molecule (linear)
-mol = gto.M(atom="C 0 0 0; O 0 0 1.160; O 0 0 -1.160",
-            basis="def2-svp", unit="Angstrom", verbose=4)
-
-# Run B3LYP calculation
-mf = dft.RKS(mol)
-mf.xc = "B3LYP"
-mf.grids.level = 3
-mf.conv_tol = 1e-9
-energy = mf.kernel()
-
-print(f"CO₂ B3LYP Energy = {energy:.10f} Hartree")
-with open("results/co2_b3lyp.txt", "w") as f:
-    f.write(f"{energy:.12f}\n")
-EOF
-
-# Run calculation
-OMP_NUM_THREADS=1 /Users/vyv/Documents/Teaching/CompChem/2025/Week_2/.venv/bin/python scripts/co2_test.py
+OMP_NUM_THREADS=1 python scripts/co2_test.py
 cat results/co2_b3lyp.txt
 ```
 
-**Expected result**: `-188.442995139098` (much more negative due to more electrons)
+**Expected**: `-188.442995139098` (more negative — more electrons)
 
-## Expected Results
+### Test 6: Water — B3LYP/6-31G(d) with metadata
 
-- **RHF Energy**: -75.96 Hartree (around -76 Hartree, negative value)
-- **B3LYP Energy**: -76.36 Hartree (similar to RHF, slightly different due to correlation)
-- **MP2 Energy**: -76.16 Hartree (lower than RHF, more negative due to electron correlation)
-- **CO₂ Energy**: -188.44 Hartree (much more negative due to more electrons)
+```bash
+OMP_NUM_THREADS=1 python scripts/water_B3LYP_631Gd.py
+cat results/water_b3lyp_631gd.json
+```
+
+Writes both a `.txt` energy and a `.json` record of method, basis, grid,
+convergence and platform — the shape of output Week 5 will plot.
 
 ## Troubleshooting
 
-If pip installation fails, try using conda instead:
+If a pip installation fails, conda-forge has arm64 builds:
 
 ```bash
 # Install miniforge: https://github.com/conda-forge/miniforge
@@ -251,9 +144,11 @@ conda create -n pyscf-311 -c conda-forge python=3.11 pyscf=2.4 numpy=1.26 scipy=
 conda activate pyscf-311
 ```
 
-## Clean Up
+If a script reports `FileNotFoundError` for `results/`, you are running an old
+checkout — pull the latest `main`, where every script creates the directory
+before writing.
 
-When finished:
+## Clean Up
 
 ```bash
 deactivate  # Exit virtual environment
@@ -261,11 +156,9 @@ deactivate  # Exit virtual environment
 
 ## Summary
 
-You have successfully:
+You have:
 
 - ✅ Installed PySCF on Apple Silicon
-- ✅ Run RHF, DFT, and MP2 calculations
-- ✅ Performed geometry optimization
-- ✅ Saved all results for reference
-
-Your PySCF installation is ready for computational chemistry work!
+- ✅ Run RHF, B3LYP and MP2 calculations
+- ✅ Performed a geometry optimisation
+- ✅ Written results to `results/`, which stays out of version control
