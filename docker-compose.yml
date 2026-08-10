@@ -1,7 +1,7 @@
 services:
   pyscf:
     build: .
-    image: week2/pyscf:1.0
+    image: week3/pyscf:1.0
     working_dir: /workspace
     # Cross-platform bind mounts - direct host folder mapping
     volumes:

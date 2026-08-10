@@ -1,4 +1,4 @@
-# Week 2 — Containers & Electronic-Structure Workflows
+# Week 3 — Containers & Electronic-Structure Workflows
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](./Dockerfile)
 [![Cross-Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-success)](./docker-compose.yml)
@@ -37,8 +37,8 @@ docker run hello-world
 ### 1. Clone and Build
 
 ```bash
-git clone <repository-url>
-cd Week_2
+git clone https://github.com/yyods/CompChem-PySCF.git
+cd CompChem-PySCF
 docker compose build pyscf
 ```
 
@@ -71,7 +71,7 @@ docker compose run --rm pyscf scripts/co2_test.py
 ## 📁 Project Structure
 
 ```
-week2/
+CompChem-PySCF/
 ├── 🐳 Dockerfile              # Python 3.10 + PySCF environment
 ├── 🔧 docker-compose.yml      # Cross-platform bind mounts
 ├── 📜 scripts/                # Calculation scripts
@@ -81,15 +81,16 @@ week2/
 │   ├── water_dft.py          # DFT demonstration
 │   ├── water_hf.py           # Hartree-Fock calculation
 │   └── water_mp2.py          # MP2 correlation energy
-├── 📊 results/               # Output files (.xyz, .txt, .json)
-├── 📋 jobs/                  # Batch job artifacts
-├── 📚 docs/                  # Platform-specific setup guides
-│   ├── local_MacOS.md        # Apple Silicon setup
-│   ├── local_Windows.md      # Windows 10/11 setup
-│   └── local_original.md     # Original macOS guide
-└── 📖 resources/
-    └── outline.md            # Detailed course outline
+├── 📊 results/               # Output files (.xyz, .txt, .json) — gitignored
+├── 📋 jobs/                  # Batch job artifacts — gitignored
+└── 📚 docs/                  # Platform-specific setup guides
+    ├── local_MacOS.md        # Apple Silicon setup
+    ├── local_Windows.md      # Windows / WSL2 setup
+    └── local_original.md     # Original macOS guide
 ```
+
+`results/`, `jobs/` and `resources/` are gitignored: they are created on first
+run and never committed.
 
 ## 🔬 Method Comparison
 
@@ -171,8 +172,8 @@ sudo sh get-docker.sh
 
 3. **Tag & Push**
    ```bash
-   docker tag week2/pyscf:1.0 ghcr.io/<USERNAME>/pyscf-co2:week2
-   docker push ghcr.io/<USERNAME>/pyscf-co2:week2
+   docker tag week3/pyscf:1.0 ghcr.io/<USERNAME>/pyscf-co2:week3
+   docker push ghcr.io/<USERNAME>/pyscf-co2:week3
    ```
 
 ### 📋 Deliverables
@@ -189,7 +190,7 @@ sudo sh get-docker.sh
 ```bash
 # Move to accessible location if bind mounts fail
 cp -r /path/to/project /Users/$USER/docker-projects/
-cd /Users/$USER/docker-projects/Week_2
+cd /Users/$USER/docker-projects/CompChem-PySCF
 ```
 
 ### Python Version Compatibility
@@ -225,6 +226,6 @@ This educational content is available under MIT License. See `LICENSE` file for 
 ---
 
 **🎓 Course**: Computational Chemistry  
-**📅 Module**: Week 2 - Container Workflows  
+**📅 Module**: Week 3 - Container Workflows  
 **👨‍🏫 Instructor**: Viwat Vchirawongkwin  
 **🏫 Institution**: Chulalongkorn University
