@@ -1,4 +1,5 @@
 from pyscf import gto, dft
+from pathlib import Path
 mol = gto.M(
     atom = "C 0 0 0; O 0 0 1.160; O 0 0 -1.160",  # ~eq. CO2 bond in Å
     unit = "Angstrom",
@@ -10,4 +11,5 @@ mf.grids.level = 3
 mf.conv_tol = 1e-9
 E = mf.kernel()
 print(f"E_total (B3LYP/def2-SVP) = {E:.10f} Hartree")
+Path("results").mkdir(exist_ok=True)
 with open("results/co2_energy.txt","w") as f: f.write(f"{E:.12f}\n")

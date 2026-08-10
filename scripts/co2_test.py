@@ -1,4 +1,5 @@
 from pyscf import gto, dft
+from pathlib import Path
 
 # Define CO2 molecule (linear)
 mol = gto.M(atom="C 0 0 0; O 0 0 1.160; O 0 0 -1.160",
@@ -12,5 +13,6 @@ mf.conv_tol = 1e-9
 energy = mf.kernel()
 
 print(f"CO₂ B3LYP Energy = {energy:.10f} Hartree")
+Path("results").mkdir(exist_ok=True)
 with open("results/co2_b3lyp.txt", "w") as f:
     f.write(f"{energy:.12f}\n")

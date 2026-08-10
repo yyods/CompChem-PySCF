@@ -1,4 +1,5 @@
 from pyscf import gto, scf
+from pathlib import Path
 
 # Define water molecule
 mol = gto.M(atom='''
@@ -13,5 +14,6 @@ mf.conv_tol = 1e-9
 energy = mf.kernel()
 
 print(f"RHF Energy = {energy:.10f} Hartree")
+Path("results").mkdir(exist_ok=True)
 with open("results/water_hf.txt", "w") as f:
     f.write(f"{energy:.12f}\n")

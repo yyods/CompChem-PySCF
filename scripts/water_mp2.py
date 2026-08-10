@@ -1,4 +1,5 @@
 from pyscf import gto, scf, mp
+from pathlib import Path
 
 # Define water molecule
 mol = gto.M(atom='''
@@ -13,5 +14,6 @@ mp2 = mp.MP2(mf).run()
 
 print(f"RHF Energy = {mf.e_tot:.10f} Hartree")
 print(f"MP2 Energy = {mp2.e_tot:.10f} Hartree")
+Path("results").mkdir(exist_ok=True)
 with open("results/water_mp2.txt", "w") as f:
     f.write(f"{mp2.e_tot:.12f}\n")

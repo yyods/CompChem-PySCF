@@ -19,6 +19,7 @@ mf.conv_tol = 1e-9
 mol_opt = optimize(mf, maxsteps=100)
 
 # Save optimized geometry
+Path("results").mkdir(exist_ok=True)
 xyz_file = Path("results/water_opt.xyz")
 with xyz_file.open("w") as f:
     f.write(f"{mol_opt.natm}\nOptimized H2O (B3LYP/def2-SVP)\n")

@@ -1,4 +1,5 @@
 from pyscf import gto, dft
+from pathlib import Path
 
 # Define water molecule
 mol = gto.M(atom='''
@@ -15,5 +16,6 @@ mf.conv_tol = 1e-9
 energy = mf.kernel()
 
 print(f"B3LYP Energy = {energy:.10f} Hartree")
+Path("results").mkdir(exist_ok=True)
 with open("results/water_b3lyp.txt", "w") as f:
     f.write(f"{energy:.12f}\n")
