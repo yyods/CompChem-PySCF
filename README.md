@@ -88,7 +88,7 @@ CompChem-PySCF/
 └── 📚 docs/                  # Platform-specific setup guides
     ├── local_MacOS.md        # Apple Silicon setup
     ├── local_Windows.md      # Windows / WSL2 setup
-    └── local_original.md     # Original macOS guide
+    └── local_original.md     # Superseded standalone walkthrough
 ```
 
 `results/`, `jobs/` and `resources/` are gitignored: they are created on first

@@ -1,5 +1,15 @@
 # Local PySCF Setup on Apple Silicon (M1/M2/M3)
 
+> **Kept for reference; superseded by [local_MacOS.md](./local_MacOS.md).**
+>
+> This is a standalone walkthrough that builds its own sandbox in
+> `~/chem/pyscf-test` and writes its own copies of the scripts. Run it from your
+> home directory, **not** from inside a clone of this repository — its
+> `cat > scripts/...` blocks would overwrite the tracked scripts.
+>
+> To work in the repository itself, follow `local_MacOS.md`, which runs the
+> scripts that are already here.
+
 # A. One-time checks (Apple Silicon + tooling)
 
 ```bash
