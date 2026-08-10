@@ -1,4 +1,13 @@
+# Python
 .venv/
+__pycache__/
+*.pyc
+
+# Calculation outputs — regenerate them, never commit them
 results/
 jobs/
 resources/
+
+# OS cruft
+.DS_Store
+Thumbs.db
