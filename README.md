@@ -12,7 +12,9 @@ By the end of this module, students will:
 
 1. **Explain** why containers matter for computational reproducibility in quantum chemistry
 2. **Build and run** a Docker image that executes PySCF jobs deterministically
-3. **Compare** HF, MP2, and DFT methods on accuracy vs. cost trade-offs
+3. **Compare** the wall-clock cost of HF, B3LYP and MP2 on the same water
+   geometry, and explain why their total energies cannot be ranked for accuracy
+   against each other
 4. **Configure** SCF/geometry convergence and basis set options appropriately
 5. **Deploy** containerized calculations to GitHub Container Registry (GHCR)
 
@@ -94,11 +96,23 @@ run and never committed.
 
 ## 🔬 Method Comparison
 
-| Method  | Scaling  | Accuracy | Use Case                      |
-| ------- | -------- | -------- | ----------------------------- |
-| **HF**  | O(N⁴)    | Baseline | Orbital analysis, teaching    |
-| **DFT** | O(N³-N⁴) | Good     | Geometries, relative energies |
-| **MP2** | O(N⁵)    | Better   | Small molecules, correlation  |
+| Method             | Formal cost | MAE, atomization energies\* | Use in this repo                                                    |
+| ------------------ | ----------- | --------------------------- | ------------------------------------------------------------------- |
+| **HF**             | O(N⁴)       | ~75                         | `water_hf.py` — reference wavefunction, orbital analysis             |
+| **B3LYP** (hybrid) | O(N⁴)       | ~3                          | `water_dft.py`, `co2_test.py`, `optimize_water.py` — geometries      |
+| **MP2**            | O(N⁵)       | ~7                          | `water_mp2.py` — correlation demo; dispersion-bound complexes        |
+
+\* kcal mol⁻¹ vs experiment, G2-type sets at 6-311+G(3df,2p). These are **three
+separate studies on sets of different size** — read them as orders of magnitude,
+not a controlled series.
+
+Note the ordering for this property: MP2 costs more than B3LYP and is *less*
+accurate. Cost buys accuracy *within* a hierarchy (HF → MP2 → CCSD(T)), not
+across families. See the Week 2 slide "Cost vs Accuracy — Not One Ladder".
+
+The three water scripts share a geometry and def2-SVP, so their total energies
+sort as E(B3LYP) < E(MP2) < E(HF). That ordering is **not** an accuracy ranking:
+total energies from different methods are not comparable to each other.
 
 ### Recommended Settings
 
