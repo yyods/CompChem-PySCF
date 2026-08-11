@@ -1,4 +1,4 @@
-# Week 5555 — Containers & Electronic-Structure Workflows
+# Week 2 — Containers & Electronic-Structure Workflows
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](./Dockerfile)
 [![Cross-Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-success)](./docker-compose.yml)
