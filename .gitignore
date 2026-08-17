@@ -3,8 +3,16 @@
 __pycache__/
 *.pyc
 
-# Calculation outputs — regenerate them, never commit them
-results/
+# Calculation outputs. The small structured record IS the deliverable and is
+# committed; anything else under results/ is scratch.
+# Note results/* not results/ — git cannot re-include a file whose parent
+# directory is excluded.
+results/*
+!results/*.txt
+!results/*.xyz
+!results/*.json
+
+# Scratch and batch artefacts — never committed
 jobs/
 resources/
 
