@@ -1,4 +1,5 @@
 from pyscf import gto, dft
+from _record import record
 from pyscf.geomopt.geometric_solver import optimize
 from pathlib import Path
 
@@ -29,3 +30,4 @@ with xyz_file.open("w") as f:
         f.write(f"{symbol:2s} {x:.8f} {y:.8f} {z:.8f}\n")
 
 print(f"Optimized geometry saved to {xyz_file}")
+record("water_opt", mf.e_tot, mol_opt, method="B3LYP", grid_level=mf.grids.level, optimizer="geomeTRIC")

@@ -1,4 +1,5 @@
 from pyscf import gto, dft
+from _record import record
 from pathlib import Path
 
 # Define water molecule
@@ -19,3 +20,4 @@ print(f"B3LYP Energy = {energy:.10f} Hartree")
 Path("results").mkdir(exist_ok=True)
 with open("results/water_b3lyp.txt", "w") as f:
     f.write(f"{energy:.12f}\n")
+record("water_b3lyp", energy, mol, method="B3LYP", conv_tol=mf.conv_tol, grid_level=mf.grids.level)
