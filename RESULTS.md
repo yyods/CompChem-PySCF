@@ -24,8 +24,8 @@ Here is a comparison of the simulation results before and after the Density Fitt
 
 | Condition | Energy (Hartree) | Working Time (CPU Time) |
 | :--- | :--- | :--- |
-| Tanpa Density Fitting (RHF) | -75.9609751670 | 0.20 s |
-| Pakai Density Fitting (DFRHF) | -75.9609192737 | 0.19 s |
+| Without Density Fitting (RHF) | -75.9609751670 | 0.20 s |
+| Using Density Fitting (DFRHF) | -75.9609192737 | 0.19 s |
 
 * **Energy Shift:** 0.0000558933 Hartree
 
