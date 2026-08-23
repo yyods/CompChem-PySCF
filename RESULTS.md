@@ -13,3 +13,9 @@
 * **Density Functional Theory (DFT)**: CPU Time = 0.16 s
 
 *Note: For a very small system like a single water molecule, the computational cost differences between HF, MP2, and DFT are negligible in this hardware environment.*
+
+## Tightened Convergence Tolerance
+* **Tightened DFT (B3LYP)**: conv_tol = 1e-10, grids.level = 5
+* **Final Precise Energy**: -76.3581493060 
+
+*Note: Tightening the convergence tolerance ensures high numerical precision for the electronic structure calculation.*

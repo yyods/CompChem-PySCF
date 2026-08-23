@@ -10,8 +10,8 @@ H  0.0000  0.7570  0.5870
 # Run B3LYP DFT calculation
 mf = dft.RKS(mol)
 mf.xc = 'B3LYP'
-mf.grids.level = 3
-mf.conv_tol = 1e-9
+mf.grids.level = 5
+mf.conv_tol = 1e-10
 energy = mf.kernel()
 
 print(f"B3LYP Energy = {energy:.10f} Hartree")
