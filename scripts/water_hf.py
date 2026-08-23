@@ -9,6 +9,7 @@ H  0.0000  0.7570  0.5870
 
 # Run Hartree-Fock calculation
 mf = scf.RHF(mol)
+mf = scf.RHF(mol).density_fit()
 mf.conv_tol = 1e-9
 energy = mf.kernel()
 
