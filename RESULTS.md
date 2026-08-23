@@ -41,7 +41,7 @@ The following is a comparison of the speed or computational cost of three differ
 | Møller–Plesset Theory (MP2) | 0.15 s |
 | Density Functional Theory (DFT) | 0.16 s |
 
-* Conclusion: In theory, the MP2 method should be the most computationally complex compared to HF and DFT. However, on this laptop, their computation times are quite similar (ranging from 0.15 to 0.16 seconds). This is possibly because the water molecule has only 3 atoms and 10 electrons, so the system is too simple to put a significant strain on the laptop’s CPU, resulting in similar computation times.
+* Conclusion: In theory, the MP2 method should be the most computationally complex compared to HF and DFT. However, on my laptop, their computation times are quite similar (ranging from 0.15 to 0.16 seconds). This is possibly because the water molecule has only 3 atoms and 10 electrons, so the system is too simple to put a significant strain on the laptop’s CPU, resulting in similar computation times.
 
 ## Tightened Convergence Tolerance
 
