@@ -29,7 +29,7 @@ Here is a comparison of the simulation results before and after the Density Fitt
 
 * **Energy Shift:** 0.0000558933 Hartree
 
-* Conclusion: Actually, Density Fitting is useful for speeding up the behind-the-scenes mathematical calculations. Perhaps because the water molecules ($H_2O$) being tested are very small, the difference in processing time isn’t very noticeable, even though Density Fitting is 0.01 seconds faster. Furthermore, we can see that the energy results are almost exactly the same—the difference only begins at the fifth decimal place. However, the results are consistent with energy theory, the use of Density Fitting will result in a higher calculated energy
+* Conclusion: Actually, Density Fitting is useful for speeding up the behind-the-scenes mathematical calculations. Perhaps because the water molecules ($H_2O$) being tested are very small, the difference in processing time isn’t very noticeable, even though Density Fitting is 0.01 seconds faster. Furthermore, we can see that the energy results are almost exactly the same and the difference only begins at the fifth decimal place. However, the results are consistent with energy theory, the use of Density Fitting will result in a higher calculated energy
 
 ## Computational Cost Comparison
 
