@@ -10,7 +10,7 @@ H  0.0000  0.7570  0.5870
 ''', basis='def2-svp', unit='Angstrom', verbose=4)
 
 # Set up B3LYP calculation
-mf = dft.RKS(mol)
+mf = dft.RKS(mol).density_fit()
 mf.xc = 'B3LYP'
 mf.grids.level = 3
 mf.conv_tol = 1e-9
