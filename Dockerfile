@@ -9,7 +9,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV PIP_NO_CACHE_DIR=1
 RUN pip install --upgrade pip && \
     pip install "numpy==1.26.4" "scipy==1.13.1" \
-                "pyscf==2.4.0" "geometric==1.0.0" "pyberny==0.6.3"
+                "pyscf==2.4.0" "geometric==1.0.0" "pyberny==0.6.3" \
+                "fastapi==0.141.1" "uvicorn==0.52.4" "pydantic==2.13.4"
+
+# No Qt here on purpose: the desktop client runs on the HOST and reaches this
+# service over HTTP. That split is the point of the Service-Runner pattern.
 
 # Runtime workspace - no scripts embedded for live development
 WORKDIR /workspace

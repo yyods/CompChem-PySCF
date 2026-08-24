@@ -17,3 +17,22 @@ services:
       - OMP_NUM_THREADS=1 # Deterministic BLAS threading
       - PYTHONUNBUFFERED=1 # Real-time output
       - PYTHONPATH=/workspace # Ensure module resolution
+
+  # The Service-Runner. Same image, different entrypoint arguments.
+  #   docker compose up api   ->   http://127.0.0.1:8000/docs
+  api:
+    build: .
+    image: week4/pyscf:1.1
+    working_dir: /workspace
+    command: -m uvicorn app:api --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app.py:/workspace/app.py:ro
+      - ./runner.py:/workspace/runner.py:ro
+      - ./scripts:/workspace/scripts:rw
+      - ./results:/workspace/results:rw
+    environment:
+      - OMP_NUM_THREADS=1
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/workspace:/workspace/scripts
