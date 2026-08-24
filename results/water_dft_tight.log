@@ -1,0 +1,102 @@
+#INFO: **** input file is /workspace/scripts/water_dft.py ****
+from pyscf import gto, dft
+
+# Define water molecule
+mol = gto.M(atom='''
+O  0.0000  0.0000  0.0000
+H  0.0000 -0.7570  0.5870
+H  0.0000  0.7570  0.5870
+''', basis='def2-svp', unit='Angstrom', verbose=4)
+
+# Run B3LYP DFT calculation
+mf = dft.RKS(mol)
+mf.xc = 'B3LYP'
+mf.grids.level = 5
+mf.conv_tol = 1e-10
+energy = mf.kernel()
+
+print(f"B3LYP Energy = {energy:.10f} Hartree")
+with open("results/water_b3lyp.txt", "w") as f:
+    f.write(f"{energy:.12f}\n")
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='76d365196f1f', release='7.0.12-linuxkit', version='#1 SMP PREEMPT Wed Aug 12 20:18:49 UTC 2026', machine='aarch64')  Threads 1
+Python 3.10.21 (main, Aug 13 2026, 19:52:05) [GCC 14.2.0]
+numpy 1.26.4  scipy 1.13.1
+Date: Mon Aug 24 16:55:33 2026
+PySCF version 2.4.0
+PySCF path  /usr/local/lib/python3.10/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 3
+[INPUT] num. electrons = 10
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 O      0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  2 H      0.000000000000  -0.757000000000   0.587000000000 AA    0.000000000000  -1.430522676296   1.109269235120 Bohr   0.0
+[INPUT]  3 H      0.000000000000   0.757000000000   0.587000000000 AA    0.000000000000   1.430522676296   1.109269235120 Bohr   0.0
+
+nuclear repulsion = 9.18825841774611
+number of shells = 12
+number of NR pGTOs = 38
+number of NR cGTOs = 24
+basis = def2-svp
+ecp = {}
+CPU time:         0.19
+
+
+******** <class 'pyscf.dft.rks.RKS'> ********
+method = RKS
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+SCF conv_tol = 1e-10
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /tmp/tmpsn9ifu_3
+max_memory 4000 MB (current use 80 MB)
+XC library pyscf.dft.libxc version 6.1.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = B3LYP
+    P. J. Stephens, F. J. Devlin, C. F. Chabalowski, and M. J. Frisch.,  J. Phys. Chem. 98, 11623 (1994)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0xffffab50eb00>
+grids dens level: 5
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0xffffab50ea70>
+small_rho_cutoff = 1e-07
+Set gradient conv threshold to 1e-05
+Initial guess from minao.
+tot grids = 91056
+init E= -76.2903784323952
+  HOMO = -0.431530098867674  LUMO = 0.00351704911867323
+cycle= 1 E= -76.2673496353104  delta_E= 0.023  |g|= 0.702  |ddm|=  1.4
+  HOMO = -0.12469250473148  LUMO = 0.0762407661613084
+cycle= 2 E= -76.1823514895171  delta_E= 0.085  |g|= 0.976  |ddm|= 1.08
+  HOMO = -0.297554044930747  LUMO = 0.0431682523603365
+cycle= 3 E= -76.3580430363768  delta_E= -0.176  |g|= 0.024  |ddm|= 0.666
+  HOMO = -0.291461673125183  LUMO = 0.0473122794044326
+cycle= 4 E= -76.3581470456804  delta_E= -0.000104  |g|= 0.00371  |ddm|= 0.0144
+  HOMO = -0.291772501351994  LUMO = 0.0470145934347075
+cycle= 5 E= -76.3581492708514  delta_E= -2.23e-06  |g|= 0.000427  |ddm|= 0.00208
+  HOMO = -0.291907509130623  LUMO = 0.0469912401023001
+cycle= 6 E= -76.3581493059302  delta_E= -3.51e-08  |g|= 8.21e-06  |ddm|= 0.00031
+  HOMO = -0.291907988901992  LUMO = 0.0469902086412004
+cycle= 7 E= -76.3581493059625  delta_E= -3.23e-11  |g|= 1.15e-06  |ddm|= 1.55e-05
+  HOMO = -0.291907630658457  LUMO = 0.0469903910963903
+Extra cycle  E= -76.3581493059628  delta_E= -3.27e-13  |g|= 8.74e-07  |ddm|= 1.67e-06
+converged SCF energy = -76.3581493059628
+B3LYP Energy = -76.3581493060 Hartree
