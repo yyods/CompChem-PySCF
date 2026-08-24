@@ -1,0 +1,97 @@
+#INFO: **** input file is /workspace/scripts/water_mp2.py ****
+from pyscf import gto, scf, mp
+
+# Define water molecule
+mol = gto.M(atom='''
+O  0.0000  0.0000  0.0000
+H  0.0000 -0.7570  0.5870
+H  0.0000  0.7570  0.5870
+''', basis='def2-svp', unit='Angstrom', verbose=4)
+
+# Run RHF first, then MP2
+mf = scf.RHF(mol).run(conv_tol=1e-9)
+mp2 = mp.MP2(mf).run()
+
+print(f"RHF Energy = {mf.e_tot:.10f} Hartree")
+print(f"MP2 Energy = {mp2.e_tot:.10f} Hartree")
+with open("results/water_mp2.txt", "w") as f:
+    f.write(f"{mp2.e_tot:.12f}\n")
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='9d78e2ad3964', release='7.0.12-linuxkit', version='#1 SMP PREEMPT Wed Aug 12 20:18:49 UTC 2026', machine='aarch64')  Threads 1
+Python 3.10.21 (main, Aug 13 2026, 19:52:05) [GCC 14.2.0]
+numpy 1.26.4  scipy 1.13.1
+Date: Mon Aug 24 16:45:57 2026
+PySCF version 2.4.0
+PySCF path  /usr/local/lib/python3.10/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 3
+[INPUT] num. electrons = 10
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 O      0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  2 H      0.000000000000  -0.757000000000   0.587000000000 AA    0.000000000000  -1.430522676296   1.109269235120 Bohr   0.0
+[INPUT]  3 H      0.000000000000   0.757000000000   0.587000000000 AA    0.000000000000   1.430522676296   1.109269235120 Bohr   0.0
+
+nuclear repulsion = 9.18825841774611
+number of shells = 12
+number of NR pGTOs = 38
+number of NR cGTOs = 24
+basis = def2-svp
+ecp = {}
+CPU time:         0.15
+
+
+******** <class 'pyscf.scf.hf.RHF'> ********
+method = RHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /tmp/tmp724d3s2t
+max_memory 4000 MB (current use 78 MB)
+Set gradient conv threshold to 3.16228e-05
+Initial guess from minao.
+init E= -75.7794571693272
+  HOMO = -0.478694057318486  LUMO = 0.0989881707385813
+cycle= 1 E= -75.9225854690892  delta_E= -0.143  |g|= 0.444  |ddm|= 1.33
+  HOMO = -0.417679552172918  LUMO = 0.175201468540992
+cycle= 2 E= -75.9520409363753  delta_E= -0.0295  |g|= 0.225  |ddm|= 0.404
+  HOMO = -0.503546174218201  LUMO = 0.171429684732848
+cycle= 3 E= -75.9607847801506  delta_E= -0.00874  |g|= 0.0254  |ddm|= 0.145
+  HOMO = -0.496185082735067  LUMO = 0.176201989145814
+cycle= 4 E= -75.9609606991106  delta_E= -0.000176  |g|= 0.00585  |ddm|= 0.0188
+  HOMO = -0.497693396511689  LUMO = 0.176192468930114
+cycle= 5 E= -75.9609746709485  delta_E= -1.4e-05  |g|= 0.000967  |ddm|= 0.00664
+  HOMO = -0.498028212159418  LUMO = 0.176119569845177
+cycle= 6 E= -75.9609751522319  delta_E= -4.81e-07  |g|= 0.00016  |ddm|= 0.00139
+  HOMO = -0.49808236124812  LUMO = 0.176112181301684
+cycle= 7 E= -75.9609751667509  delta_E= -1.45e-08  |g|= 1.88e-05  |ddm|= 0.000289
+  HOMO = -0.49807955344407  LUMO = 0.176111285166629
+cycle= 8 E= -75.9609751669696  delta_E= -2.19e-10  |g|= 4.67e-06  |ddm|= 3.4e-05
+  HOMO = -0.49807835021711  LUMO = 0.176111284321236
+Extra cycle  E= -75.9609751669825  delta_E= -1.29e-11  |g|= 2.04e-06  |ddm|= 6.71e-06
+converged SCF energy = -75.9609751669825
+
+******** <class 'pyscf.mp.mp2.MP2'> ********
+nocc = 5, nmo = 24
+max_memory 4000 MB (current use 90 MB)
+E(MP2) = -76.164590031811  E_corr = -0.203614864828531
+E(SCS-MP2) = -76.1608755157509  E_corr = -0.199900348768457
+E_corr(same-spin) = -0.0512740257989778
+E_corr(oppo-spin) = -0.152340839029554
+RHF Energy = -75.9609751670 Hartree
+MP2 Energy = -76.1645900318 Hartree
