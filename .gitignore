@@ -3,14 +3,16 @@
 __pycache__/
 *.pyc
 
-# Calculation outputs. The small structured record IS the deliverable and is
-# committed; anything else under results/ is scratch.
-# Note results/* not results/ — git cannot re-include a file whose parent
-# directory is excluded.
-results/*
-!results/*.txt
-!results/*.xyz
-!results/*.json
+# PyInstaller freeze output (see the "Freeze the client" section in the README)
+build/
+dist/
+*.spec
+
+# Calculation outputs. Everything here is generated — reproduce it by running
+# the scripts or the service, don't commit it. The environment record that makes
+# the numbers reproducible is the Dockerfile and docker-compose.yml, not the
+# outputs themselves.
+results/
 
 # Scratch and batch artefacts — never committed
 jobs/
