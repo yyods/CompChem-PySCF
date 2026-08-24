@@ -30,4 +30,15 @@ with xyz_file.open("w") as f:
         f.write(f"{symbol:2s} {x:.8f} {y:.8f} {z:.8f}\n")
 
 print(f"Optimized geometry saved to {xyz_file}")
-record("water_opt", mf.e_tot, mol_opt, method="B3LYP", grid_level=mf.grids.level, optimizer="geomeTRIC")
+# optimize() drives its own scanner and returns only the new geometry — the
+# original mf is never kernel()ed, so mf.e_tot is still 0.0. Re-evaluate the
+# energy AT the optimised geometry and record that.
+mf_opt = dft.RKS(mol_opt)
+mf_opt.xc = 'B3LYP'
+mf_opt.grids.level = 3
+mf_opt.conv_tol = 1e-9
+e_opt = mf_opt.kernel()
+print(f"E(B3LYP/def2-SVP) at optimised geometry = {e_opt:.10f} Hartree")
+
+record("water_opt", e_opt, mol_opt, method="B3LYP",
+       grid_level=mf_opt.grids.level, conv_tol=mf_opt.conv_tol, optimizer="geomeTRIC")
