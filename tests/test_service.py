@@ -5,12 +5,50 @@ import sys
 from pathlib import Path
 
 import pytest
+import jsonschema  # <--- TAMBAHKAN INI
 from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import app as app_module  # noqa: E402
 
 WATER = "O 0 0 0; H 0 -0.757 0.587; H 0 0.757 0.587"
+
+# <--- TAMBAHKAN SCHEMA DI BAWAH INI UNTUK VALIDASI KOTAK B
+JOB_RESULT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "energy_hartree": {"type": "number"},
+        "method": {"type": "string"},
+        "basis": {"type": "string"},
+        "grid": {"type": "integer"},
+        "conv_tol": {"type": "number"},
+        "charge": {"type": "integer"},
+        "spin": {"type": "integer"},
+        "timings_seconds": {
+            "type": "object",
+            "properties": {
+                "build": {"type": "number"},
+                "solve": {"type": "number"}
+            },
+            "required": ["build", "solve"]
+        },
+        "versions": {
+            "type": "object",
+            "properties": {
+                "pyscf": {"type": "string"},
+                "numpy": {"type": "string"},
+                "scipy": {"type": "string"},
+                "python": {"type": "string"}
+            },
+            "required": ["pyscf", "numpy", "scipy", "python"]
+        },
+        "environment": {
+            "type": "object",
+            "additionalProperties": {"type": "string"}
+        }
+    },
+    "required": ["energy_hartree", "timings_seconds", "versions", "environment"]
+}
 
 
 @pytest.fixture()
@@ -44,7 +82,11 @@ def test_submit_then_fetch_result(client):
     r2 = client.get(f"/jobs/{job_id}/result")
     assert r2.status_code == 200
     body = r2.json()
-    # the four things slide 5 promises the result carries
+    
+    # <--- TAMBAHKAN VALIDASI SCHEMA DI SINI (KOTAK B)
+    jsonschema.validate(instance=body, schema=JOB_RESULT_SCHEMA)
+
+    # Kriteria aslinya tetap dipertahankan di bawah ini
     assert body["energy_hartree"] == pytest.approx(-76.02, abs=1e-6)
     assert set(body["timings_seconds"]) == {"build", "solve"}
     assert body["versions"]["pyscf"] == "2.4.0"
