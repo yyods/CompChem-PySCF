@@ -3,3 +3,4 @@
 # Windows wheels, so the GUI runs where PySCF cannot, and vice versa.
 PySide6==6.11.2
 pyinstaller==6.22.2
+jsonschema
