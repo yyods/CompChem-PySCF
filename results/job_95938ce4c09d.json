@@ -1,0 +1,24 @@
+{
+  "energy_hartree": -75.9609751669825,
+  "method": "HF",
+  "basis": "def2-svp",
+  "grid": 3,
+  "conv_tol": 1e-09,
+  "charge": 0,
+  "spin": 0,
+  "timings_seconds": {
+    "build": 0.0028,
+    "solve": 0.0536
+  },
+  "versions": {
+    "python": "3.11.5",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "pyscf": "2.14.0",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1"
+  },
+  "environment": {
+    "OMP_NUM_THREADS": null
+  },
+  "job_id": "95938ce4c09d"
+}
